@@ -17,6 +17,8 @@ vspiversion=2.0 # SPI version
 vspibuild=2017 # SPI build number
 vbranch=Stable # SPI build branch
 vsysarch=$(getconf LONG_BIT) # System architecture
+usrn="test"
+pword="test"
 
 # Function for iptables rules (CentOS 5 & 6)
 firew1 ()	{
@@ -149,17 +151,15 @@ ubt ()	{
 	# Installing necessary packages (Squid, apache2-utils for htpassword and dependencies)
 	apt-get install apache2-utils squid3 -y
 	# Asking user to set a username via read and writing it into $usrn
-	read -e -p "Your desired username: " usrn
+	# read -e -p "Your desired username: " usrn
 	# Creating user with username from $usrn and asking user to set a password
-	htpasswd -c /etc/squid/passwd $usrn
+	htpasswd -b -c /etc/squid/passwd $usrn $pword
 	# Downloading Squid configuration
 	wget -O /etc/squid/squid.conf https://raw.githubusercontent.com/spir1donov/spi/master/spi-ubuntu.conf --no-check-certificate
-	# Copying squid3.conf from init to init.d for startup script
-	cp /etc/init/squid3.conf /etc/init.d/squid3
 	# Creating empty blacklist.acl file for further blacklisting entries
 	touch /etc/squid/blacklist.acl
 	# Restarting Squid and enabling its service
-	service squid3 restart && update-rc.d squid3 defaults
+  systemctl restart squid && systemctl enable squid
 	# Running function firew2
 	firew2
 }
